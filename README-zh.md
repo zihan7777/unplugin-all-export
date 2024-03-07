@@ -1,8 +1,7 @@
 # unplugin-all-export
 
-[中文文档](/README-zh.md)
 
-Automatically export files from the directory, subdirectories need to have 'index' files to export, supports `vite` and ` webpack`
+自动把目录里的文件导出，子目录需要有`index`文件才会导出，支持 `vite` 和 `webpack`
 
 ## Install
 
@@ -21,8 +20,7 @@ import AllExport from 'unplugin-all-export/vite'
 export default defineConfig({
   AllExport: [
     AllExport({
-      //The name of the directory to be exported
-      dirs: ['src/utils'],
+      dirs: ['src/utils'], //要导出的目录名称
     }),
   ],
 })
@@ -35,8 +33,7 @@ export default defineConfig({
 
 module.exports = {
   resolve: {
-    //Omit the suffix when importing
-    extensions: ['.js', '.ts'],
+    extensions: ['.js', '.ts'], //import时省略后缀
   },
   plugins: [
     require('unplugin-all-export/webpack').default({
@@ -55,8 +52,7 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   configureWebpack: {
     resolve: {
-      //Omit the suffix when importing
-      extensions: ['.js', '.ts'],
+      extensions: ['.js', '.ts'], //import时省略后缀
     },
     plugins: [
       require('unplugin-all-export/webpack').default({
@@ -78,26 +74,26 @@ module.exports = defineConfig({
 ### `dirs`
 
 - **Type:** `string | string[]`
-- Directory to be exported
+- 需要导出的目录
 
 ### `ignore`
 
 - **Type:** `string | string[]`
-- file to ignore
+- 要忽略的文件
 
 ### `include`
 
 - **Type:** `string[]`
 - **Default :** `['vue', 'js', 'ts', 'json', 'jsx']`
-- Supported file types for export
+- 支持导出的文件类型
 
 ### `output`
 
 - **Type:** `{ name : string , format : stirng }`
 - **Default :** `{ name : index , format : ts }`
-- The generated file name and suffix `index.ts`
+- 生成的文件名和后缀名 `index.ts`
 
 ### `formatter`
 
 - **Type:** `(name: string, suffix: string) => string`
-- Export statement `exprot * from './${name}'`
+- 导出语句 `exprot * from './${name}'`
