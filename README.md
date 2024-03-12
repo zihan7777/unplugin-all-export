@@ -21,7 +21,7 @@ import AllExport from 'unplugin-all-export/vite'
 export default defineConfig({
   AllExport: [
     AllExport({
-      //The name of the directory to be exported
+      // The name of the directory to be exported
       dirs: ['src/utils'],
     }),
   ],
@@ -35,7 +35,7 @@ export default defineConfig({
 
 module.exports = {
   resolve: {
-    //Omit the suffix when importing
+    // Omit the suffix when importing
     extensions: ['.js', '.ts'],
   },
   plugins: [
@@ -55,7 +55,7 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   configureWebpack: {
     resolve: {
-      //Omit the suffix when importing
+      // Omit the suffix when importing
       extensions: ['.js', '.ts'],
     },
     plugins: [

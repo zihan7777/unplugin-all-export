@@ -1,6 +1,5 @@
 # unplugin-all-export
 
-
 自动把目录里的文件导出，子目录需要有`index`文件才会导出，支持 `vite` 和 `webpack`
 
 ## Install
@@ -20,7 +19,7 @@ import AllExport from 'unplugin-all-export/vite'
 export default defineConfig({
   AllExport: [
     AllExport({
-      dirs: ['src/utils'], //要导出的目录名称
+      dirs: ['src/utils'], // 要导出的目录名称
     }),
   ],
 })
@@ -33,7 +32,7 @@ export default defineConfig({
 
 module.exports = {
   resolve: {
-    extensions: ['.js', '.ts'], //import时省略后缀
+    extensions: ['.js', '.ts'], // import时省略后缀
   },
   plugins: [
     require('unplugin-all-export/webpack').default({
@@ -52,7 +51,7 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   configureWebpack: {
     resolve: {
-      extensions: ['.js', '.ts'], //import时省略后缀
+      extensions: ['.js', '.ts'], // import时省略后缀
     },
     plugins: [
       require('unplugin-all-export/webpack').default({

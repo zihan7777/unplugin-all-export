@@ -6,33 +6,16 @@
   "description": "automatically export folders",
   "author": "zihan7777",
   "license": "MIT",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "homepage": "https://github.com/zihan7777/unplugin-all-export/blob/main/README.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zihan7777/unplugin-all-export.git"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
   },
   "keywords": [
     "unplugin",
     "vite",
     "webpack"
   ],
-  "scripts": {
-    "dev": "tsup-node src/*.ts --watch src",
-    "build": "tsup-node src/*.ts --format cjs,esm  --dts --splitting --clean",
-    "play-vite": "npm -C playground/vite run dev",
-    "play-webpack": "npm -C playground/webpack run serve",
-    "play": "concurrently 'npm:play-*'",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test": "vitest",
-    "release": "bumpp"
-  },
   "exports": {
     ".": {
       "import": {
@@ -66,9 +49,28 @@
     },
     "./*": "./*"
   },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "files": [
     "dist"
   ],
+  "scripts": {
+    "dev": "tsup-node src/*.ts --watch src",
+    "build": "tsup-node src/*.ts --format cjs,esm  --dts --splitting --clean",
+    "play-vite": "npm -C playground/vite run dev",
+    "play-webpack": "npm -C playground/webpack run serve",
+    "play": "concurrently 'npm:play-*'",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "release": "bumpp",
+    "pre-commit": "lint-staged",
+    "prepare": "husky install"
+  },
   "dependencies": {
     "anymatch": "^3.1.3",
     "chokidar": "^3.6.0",
@@ -82,10 +84,15 @@
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "fast-glob": "^3.3.2",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.2",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3",
     "unplugin-auto-import": "^0.17.5",
     "vite": "^5.1.4",
     "vitest": "^1.3.1"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }
