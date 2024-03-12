@@ -13,6 +13,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          
+      - name: Configure Git
+        run: |
+          git config user.email "772567615@qq.com"
+          git config user.name "coderhyh"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
 
