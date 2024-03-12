@@ -16,7 +16,7 @@ jobs:
       - name: Configure Git
         run: |
           git config user.email "3493877405@qq.com"
-          git config user.name "zhihan7777"
+          git config user.name "zihan7777"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
