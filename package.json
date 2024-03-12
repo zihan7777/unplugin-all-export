@@ -14,6 +14,9 @@
     "type": "git",
     "url": "git+https://github.com/zihan7777/unplugin-all-export.git"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "keywords": [
     "unplugin",
     "vite",
