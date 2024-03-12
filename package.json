@@ -1,7 +1,7 @@
 {
   "name": "unplugin-all-export",
   "type": "module",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "packageManager": "pnpm@8.15.3",
   "description": "automatically export folders",
   "author": "zihan7777",
