@@ -2,9 +2,8 @@ name: Publish Package To Npmjs
 
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+    branches:
+      - master
 
 jobs:
   build:
