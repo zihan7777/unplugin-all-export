@@ -1,7 +1,7 @@
 {
   "name": "unplugin-all-export",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "packageManager": "pnpm@8.15.3",
   "description": "automatically export folders",
   "author": "zihan7777",
@@ -79,6 +79,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^2.6.4",
     "@types/node": "^20.11.21",
+    "@vitejs/plugin-vue": "^5.0.4",
     "bumpp": "^9.4.0",
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
@@ -89,7 +90,8 @@
     "typescript": "^5.3.3",
     "unplugin-auto-import": "^0.17.5",
     "vite": "^5.1.4",
-    "vitest": "^1.3.1"
+    "vitest": "^1.3.1",
+    "vue": "^3.4.21"
   },
   "lint-staged": {
     "*": "eslint --fix"
