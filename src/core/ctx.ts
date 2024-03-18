@@ -1,74 +1,63 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { normalizePath } from 'vite'
 import chokidar from 'chokidar'
 import type { FSWatcher } from 'chokidar'
 import anymatch from 'anymatch'
-import { merge } from 'lodash-unified'
 import type { DefaultOptions, Options, ViteAlias } from '../types'
-
-function getFileInfo(file: string) {
-  const suffix = path.extname(file)
-  const name = path.basename(file, suffix)
-  return { name, suffix }
-}
-
-const defaultOptions: Options = {
-  dirs: [],
-  ignore: [],
-  include: ['vue', 'js', 'ts', 'json', 'jsx'],
-  formatter: defaultFormatter,
-  output: {
-    name: 'index',
-    format: 'ts',
-  },
-}
+import { defaultOptions } from './constants'
+import { formatPath, mergeOption, toLowerCamelCase } from './utils'
 
 export default function autoExport(
   options: Options,
   alias: ViteAlias = [],
 ): FSWatcher {
-  const mergeOptions = merge({}, defaultOptions, options, {
-    alias,
-  }) as DefaultOptions
+  const opt = mergeOption(options, defaultOptions, { alias })
+  const { dirs, ignore, formats } = opt
 
-  const { dirs, ignore, output } = mergeOptions
+  const roots = formatPath(dirs, alias)
 
-  const dirPaths = formatPath(dirs, alias)
-  const watcher = chokidar.watch(dirPaths, {
-    ignored: formatPath(ignore as string[], alias),
-  })
+  function generateFormatCode(file: string) {
+    const { dir, name, ext } = path.parse(file)
 
-  watcher.on('add', watchHandle).on('unlink', watchHandle)
+    const { code: format, output }
+      = formats.find((e) => RegExp(e.find).test(ext)) || {}
 
-  function watchHandle() {
-    for (const dir of dirPaths) {
-      if (!fs.existsSync(dir)) {
-        console.log(`The folder does not exist. to ${dir}`)
-        return
-      }
+    if (!format) {
+      console.log(`This file export failed ${file}`)
+      return
+    }
 
-      const content = generateWriteContent(dir, mergeOptions)
-
-      // write output file
-      fs.writeFileSync(`${dir}/${output.name}.${output.format}`, content)
+    return {
+      output: output!,
+      code: dir
+        ? format(dir, ext, file)
+        : format(toLowerCamelCase(name), ext, file),
     }
   }
 
-  return watcher
-}
+  function generateWriteContent(dir: string) {
+    const files = getDirFile(dir, opt)
+    const tasks: Record<string, string[]> = {}
 
-function generateWriteContent(dir: string, mergeOptions: DefaultOptions) {
-  const { formatter } = mergeOptions
+    function addTask(file: string) {
+      const task = generateFormatCode(file)
 
-  const files = getDirFile(dir, mergeOptions)
+      if (!task) return
 
-  const content = files
-    .map((e) => {
-      const { name, suffix } = getFileInfo(e)
+      const { code, output } = task
+
+      if (tasks[output])
+        tasks[output].push(code)
+      else
+        tasks[output] = [code]
+    }
+
+    files.map((e) => {
       // folder
-      if (fs.statSync(`${dir}/${e}`).isFile())
-        return formatter(name, suffix)
+      if (fs.statSync(`${dir}/${e}`).isFile()) {
+        addTask(e)
+        return
+      }
 
       // non folder
       const dirFiles = fs.readdirSync(`${dir}/${e}`)
@@ -77,17 +66,41 @@ function generateWriteContent(dir: string, mergeOptions: DefaultOptions) {
           const { main } = JSON.parse(
             fs.readFileSync(`${dir}/${e}/package.json`, 'utf-8'),
           )
-          const { name } = getFileInfo(main)
-          if (main) return formatter(`${e}/${name}`, '')
+          if (main) {
+            addTask(`${e}/${main}`)
+            return
+          }
         }
-
-        if (/^index.(ts|js|vue)$/.test(i)) return formatter(`${e}`, '')
+        if (/^index.(ts|js|vue)$/.test(i))
+          addTask(`${e}/${i}`)
       }
-      return ''
     })
-    .join('\n')
 
-  return content
+    return tasks
+  }
+
+  function watchHandle() {
+    for (const root of roots) {
+      if (!fs.existsSync(root)) {
+        console.log(`The folder does not exist. to ${root}`)
+        return
+      }
+
+      const tacks = generateWriteContent(root)
+
+      Object.entries(tacks).map(([output, code]) => {
+        fs.writeFileSync(`${root}/${output}`, code.join('\n'))
+      })
+    }
+  }
+
+  const watcher = chokidar.watch(roots, {
+    ignored: formatPath(ignore as string[], alias),
+  })
+
+  watcher.on('add', watchHandle).on('unlink', watchHandle)
+
+  return watcher
 }
 
 function getDirFile(dir: string, mergeOptions: DefaultOptions) {
@@ -96,51 +109,16 @@ function getDirFile(dir: string, mergeOptions: DefaultOptions) {
 
   return fs.readdirSync(dir).filter((e) => {
     // filter out index files
-    if (/^index.*$/.test(e))
-      return false
+    if (/^index.*$/.test(e)) return false
 
-    if (e === 'package.json')
-      return false
+    if (e === 'package.json') return false
 
     const ext = path.extname(e)
-    if (ext && !include.includes(ext.replace('.', '')))
-      return false
+    if (ext && !include.includes(ext.replace('.', ''))) return false
 
     // filter out the ignore file
-    if (anymatch(ignored, path.resolve(dir, e)))
-      return false
+    if (anymatch(ignored, path.resolve(dir, e))) return false
 
     return true
   })
-}
-
-function formatPath(paths: string | string[], alias: ViteAlias) {
-  const pathArray = Array.isArray(paths) ? paths : [paths]
-
-  return pathArray.map((p) => {
-    let result: string = ''
-    const matchedEntry = alias.find((e) => matches(e.find, p))
-
-    result = matchedEntry
-      ? p.replace(matchedEntry.find, matchedEntry.replacement)
-      : p
-    return normalizePath(path.resolve(result))
-  })
-}
-
-function defaultFormatter(name: string, suffix?: string) {
-  if (suffix === '.json')
-    return `export { default as ${name} } from './${name}${suffix}'`
-
-  return `export * from './${name}'`
-}
-
-function matches(pattern: string | RegExp, dir: string) {
-  if (pattern instanceof RegExp) return pattern.test(dir)
-
-  if (dir.length < pattern.length) return false
-
-  if (dir === pattern) return true
-
-  return dir.startsWith(`${pattern}/`)
 }

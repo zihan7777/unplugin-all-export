@@ -2,13 +2,13 @@
 
 自动把目录里的文件导出，子目录需要有`index`文件才会导出，支持 `vite` 和 `webpack`
 
-## Install
+## 安装
 
 ```bash
 $ npm i unplugin-all-export -D
 ```
 
-## 🚀 Usage
+## 🚀 使用
 
 **vite**
 
@@ -62,13 +62,41 @@ module.exports = defineConfig({
 })
 ```
 
-## Example
+## 示例
 
 [Vite](/playground/vite)
 
 [Webpack](/playground/webpack)
 
-## 🔧 Options
+### 导出scss文件
+```ts
+// vite.config.ts
+{
+  include:['scss'],
+}
+```
+Output
+```scss
+// index.scss
+@use './one.scss';
+@use './two.scss';
+```
+
+### 导出vue文件
+```ts
+// vite.config.ts
+{
+  include:['vue'],
+}
+```
+Output
+```ts
+// index.ts
+export { default as one } from './one.vue'
+export { default as two } from './two.vue'
+```
+
+## 🔧 选项
 
 ### `dirs`
 
@@ -86,13 +114,69 @@ module.exports = defineConfig({
 - **Default :** `['vue', 'js', 'ts', 'json', 'jsx']`
 - 支持导出的文件类型
 
-### `output`
+### `formats`
 
+- **Type:** `Record<string , string> | Array<{ find: string; code: (name, suffix, filename) => string , output: string}>`
+- **Default :**
+
+```js
+
+formats: [
+    {
+      find: '.json',
+      code: "export { default as ${name} } from './${filename}'",
+      output: defaultOutput, //index.ts
+    },
+    {
+      find: '.js',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.ts',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.vue',
+      code: "export { default as ${name} } from './${filename}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.jsx',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.tsx',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.scss',
+      code: "@use './${filename}';",
+      output: 'index.scss',
+    },
+    {
+      find: '.css',
+      code: (name, suffix, filename) => `@import url('./${filename}');`,
+      output: 'index.css',
+    },
+    {
+      find: '.less',
+      code: "@import './${filename}';",
+      output: 'index.less',
+    },
+  ],
+```
+
+### `output`
+- 废弃 请使用 `formats`
 - **Type:** `{ name : string , format : stirng }`
 - **Default :** `{ name : index , format : ts }`
 - 生成的文件名和后缀名 `index.ts`
 
 ### `formatter`
-
+- 废弃 请使用 `formats`
 - **Type:** `(name: string, suffix: string) => string`
 - 导出语句 `exprot * from './${name}'`

@@ -3,24 +3,30 @@ import fs from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import fg from 'fast-glob'
 import AllExport from '../src/core/ctx'
-import type { DefaultOptions } from '../src/types'
+import { transformFormat } from '../src/core/utils'
+import type {
+  FormatFn,
+  Options,
+} from '../src/types'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const optios: DefaultOptions = {
+const optios: Options = {
   include: ['ts', 'js', 'json'],
-  dirs: ['test/exportDir'],
-  ignore: ['test/exportDir/f', 'test/exportDir/e.*'],
-  formatter: (name) => `export * from './${name}'`,
-  alias: [],
-  output: {
-    name: 'index',
-    format: 'ts',
-  },
+  dirs: ['test/example'],
+  ignore: ['test/example/json'],
+  formats: [
+    {
+      find: '.ts',
+      code: 'export * from "./${name}"',
+      output: 'index.ts',
+    },
+  ],
 }
 const { output, dirs, ignore } = optios
 
-const outputFile = `${output.name}.${output.format}`
+const { output: outputFile, code }
+  = transformFormat(optios.formats!).find((e) => e.find === '.ts') || {}
 
 describe('index', async () => {
   AllExport(optios)
@@ -31,10 +37,12 @@ describe('index', async () => {
     if (!ignoreFiles.length) return
 
     for (const ignoreFile of ignoreFiles) {
-      const { dir, base } = path.parse(ignoreFile)
-      const outputContent = fs.readFileSync(path.join(dir, outputFile), 'utf-8')
+      const { dir, base, ext } = path.parse(ignoreFile)
+      const outputContent = fs.readFileSync(path.join(dir, 'index.ts'), 'utf-8')
 
-      const hasIgnoreFile = outputContent.includes(optios.formatter(base, ''))
+      const hasIgnoreFile = outputContent.includes(
+        (code as FormatFn)(base, ext, ignoreFile),
+      )
 
       expect(hasIgnoreFile).toBe(false)
     }

@@ -73,6 +73,34 @@ module.exports = defineConfig({
 
 [Webpack](/playground/webpack)
 
+### Export scss file
+```ts
+// vite.config.ts
+{
+  include:['scss'],
+}
+```
+Output
+```scss
+// index.scss
+@use './one.scss';
+@use './two.scss';
+```
+
+### Export vue file
+```ts
+// vite.config.ts
+{
+  include:['vue'],
+}
+```
+Output
+```ts
+// index.ts
+export { default as one } from './one.vue'
+export { default as two } from './two.vue'
+```
+
 ## 🔧 Options
 
 ### `dirs`
@@ -88,16 +116,76 @@ module.exports = defineConfig({
 ### `include`
 
 - **Type:** `string[]`
-- **Default :** `['vue', 'js', 'ts', 'json', 'jsx']`
+- **Default :** `['js', 'ts']`
 - Supported file types for export
 
-### `output`
+### `formats`
 
+- **Type:** `Record<string , string> | Array<{ find: string; code: (name, suffix, filename) => string , output: string}>`
+- **Default :**
+
+```js
+
+formats: [
+    {
+      find: '.json',
+      code: "export { default as ${name} } from './${filename}'",
+      output: defaultOutput, //index.ts
+    },
+    {
+      find: '.js',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.ts',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.vue',
+      code: "export { default as ${name} } from './${filename}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.jsx',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.tsx',
+      code: "export * from './${name}'",
+      output: defaultOutput,
+    },
+    {
+      find: '.scss',
+      code: "@use './${filename}';",
+      output: 'index.scss',
+    },
+    {
+      find: '.css',
+      code: (name, suffix, filename) => `@import url('./${filename}');`,
+      output: 'index.css',
+    },
+    {
+      find: '.less',
+      code: "@import './${filename}';",
+      output: 'index.less',
+    },
+  ],
+```
+
+- Supported file types for export
+
+### `output` deprecated
+
+- @deprecated The next version will be discontinued, please use formats
 - **Type:** `{ name : string , format : stirng }`
 - **Default :** `{ name : index , format : ts }`
 - The generated file name and suffix `index.ts`
 
-### `formatter`
+### `formatter` deprecated
 
+- @deprecated The next version will be discontinued, please use formats
 - **Type:** `(name: string, suffix: string) => string`
 - Export statement `exprot * from './${name}'`
