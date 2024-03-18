@@ -4,10 +4,7 @@ import { describe, expect, it } from 'vitest'
 import fg from 'fast-glob'
 import AllExport from '../src/core/ctx'
 import { transformFormat } from '../src/core/utils'
-import type {
-  FormatFn,
-  Options,
-} from '../src/types'
+import type { FormatFn, Options } from '../src/types'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -23,10 +20,10 @@ const optios: Options = {
     },
   ],
 }
-const { output, dirs, ignore } = optios
+const { dirs, ignore } = optios
 
-const { output: outputFile, code }
-  = transformFormat(optios.formats!).find((e) => e.find === '.ts') || {}
+const { output: outputFile, code } =
+  transformFormat(optios.formats!).find((e) => e.find === '.ts') || {}
 
 describe('index', async () => {
   AllExport(optios)
