@@ -1,5 +1,5 @@
 import type { Options } from '../types'
-import { isTypescriptEnvironment } from './utils'
+import { isTypescriptEnvironment, toLowerCamelCase } from './utils'
 
 const defaultOutput = `index.${isTypescriptEnvironment() ? 'ts' : 'js'}`
 export const defaultOptions: Options = {
@@ -9,7 +9,10 @@ export const defaultOptions: Options = {
   formats: [
     {
       find: '.json',
-      code: 'export { default as ${name} } from \'./${filename}\'',
+      code: (name, ext, filename) =>
+        `export { default as ${toLowerCamelCase(
+          name,
+        )} } from \'./${filename}\'`,
       output: defaultOutput,
     },
     {
@@ -24,7 +27,10 @@ export const defaultOptions: Options = {
     },
     {
       find: '.vue',
-      code: 'export { default as ${name} } from \'./${filename}\'',
+      code: (name, ext, filename) =>
+        `export { default as ${toLowerCamelCase(
+          name,
+        )} } from \'./${filename}\'`,
       output: defaultOutput,
     },
     {

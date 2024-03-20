@@ -5,7 +5,7 @@ import type { FSWatcher } from 'chokidar'
 import anymatch from 'anymatch'
 import type { DefaultOptions, Options, ViteAlias } from '../types'
 import { defaultOptions } from './constants'
-import { formatPath, mergeOption, toLowerCamelCase } from './utils'
+import { formatPath, mergeOption } from './utils'
 
 export default function autoExport(
   options: Options,
@@ -29,9 +29,7 @@ export default function autoExport(
 
     return {
       output: output!,
-      code: dir
-        ? format(dir, ext, file)
-        : format(toLowerCamelCase(name), ext, file),
+      code: dir ? format(dir, ext, file) : format(name, ext, file),
     }
   }
 
@@ -46,10 +44,8 @@ export default function autoExport(
 
       const { code, output } = task
 
-      if (tasks[output])
-        tasks[output].push(code)
-      else
-        tasks[output] = [code]
+      if (tasks[output]) tasks[output].push(code)
+      else tasks[output] = [code]
     }
 
     files.map((e) => {
@@ -71,8 +67,7 @@ export default function autoExport(
             return
           }
         }
-        if (/^index.(ts|js|vue)$/.test(i))
-          addTask(`${e}/${i}`)
+        if (/^index.(ts|js|vue)$/.test(i)) addTask(`${e}/${i}`)
       }
     })
 
